@@ -235,12 +235,10 @@ async function renderLogin() {
           <path d="M40 0 L80 40 L40 80 L0 40Z" fill="none" stroke="#fff" stroke-width="2"/>
           <circle cx="40" cy="40" r="10" fill="none" stroke="#e84a00" stroke-width="3"/></pattern></defs>
         <rect width="400" height="400" fill="url(#tl)"/></svg>
-      <div><h1 id="lg-name">ساختمان</h1><p>صورتحساب، پرداخت و صندوق ۱۰ واحد، یک‌جا.</p></div>
+      <div><h1 id="lg-name">ساختمان</h1><p>.</p></div>
     </div>
     <div class="form"><div class="card">
       <h2>ورود ساکنین</h2>
-      <form id="lg" class="grid" style="gap:14px">
-        <label class="f">واحد
           <select id="lg-acc"><option value="">در حال بارگذاری…</option></select></label>
         <label class="f">یا نام کاربری
           <input id="lg-user" autocomplete="username" placeholder="مثلاً negin1" dir="ltr"></label>
@@ -255,13 +253,6 @@ async function renderLogin() {
     const info = await api('app_public_info');
     S.building = info.building_name;
     $('#lg-name').textContent = info.building_name;
-    $('#lg-acc').innerHTML = `<option value="">انتخاب واحد…</option>` + info.accounts.map(a =>
-      `<option value="${a.id}">واحد ${fa(a.unit_no)} · ${esc(a.full_name || '')} (${esc(a.occupancy)})${a.is_admin ? ' · مدیر' : ''}</option>`).join('');
-  } catch (e) { $('#lg-err').textContent = 'اتصال به پایگاه داده برقرار نشد. فایل SQL اجرا شده است؟'; }
-  $('#lg-acc').addEventListener('change', () => { if ($('#lg-acc').value) $('#lg-user').value = ''; });
-  $('#lg-user').addEventListener('input', () => { if ($('#lg-user').value) $('#lg-acc').value = ''; });
-  $('#lg').addEventListener('submit', async e => {
-    e.preventDefault();
     const login = $('#lg-user').value.trim() || $('#lg-acc').value;
     if (!login) { $('#lg-err').textContent = 'واحد یا نام کاربری را وارد کنید'; return; }
     try {
