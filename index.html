@@ -83,11 +83,11 @@
     const CATS = { charge:'شارژ ماهیانه', water:'قبض آب', gas:'قبض گاز', repair:'بازسازی', parking:'اجاره پارکینگ', debt:'پرداخت بدهی معوق', other:'سایر', bill:'کل صورتحساب ماه' };
     const OCC = ['مالک ساکن','مالک','مستأجر'];
     const $ = (s, el = document) => el.querySelector(s); const $$ = (s, el = document) => [...el.querySelectorAll(s)];
-    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     const fmt = n => new Intl.NumberFormat('fa-IR').format(Math.round(Number(n) || 0));
     const money = n => `<span class="num ${Number(n) < 0 ? 'neg' : ''}">${fmt(n)}</span>`;
-    const fa = v => String(v ?? '');
-    const toNum = v => Number(String(v ?? '').replace(/[^\d.-]/g, '')) || 0;
+    const fa = v => String(v || '');
+    const toNum = v => Number(String(v || '').replace(/[^\d.-]/g, '')) || 0;
 
     function jalaliToday() { 
       return { y: 1405, m: 7, d: 15 };
