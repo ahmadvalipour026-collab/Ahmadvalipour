@@ -262,22 +262,9 @@ tr:hover td{background:#fcfaf8}
 
 // =====================================================================
 
-
 const SUPABASE_URL = 'https://hpgvgoehkcpjmdbfmnse.supabase.co';
-
 const SUPABASE_KEY = 'sb_publishable_BuJxTaMP2rYWTe5mh-N55Q_gSHE1O8g';
-
-const sb = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY,
-    {
-        auth: {
-            persistSession: false
-        }
-    }
-);
-
-
+ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false } });
 
 
 // =====================================================================
