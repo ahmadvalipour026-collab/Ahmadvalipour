@@ -149,7 +149,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { pe
 //  کمکی‌ها
 // =====================================================================
 const MONTHS = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
-const CATS = { charge:'شارژ ماهیانه', water:'قبض آب', gas:'قبض گاز', electric:'قبض برق', repair:'بازسازی', parking:'اجاره پارکینگ', debt:'پرداخت بدهی معوق', other:'سایر', bill:'کل صورتحساب ماه' };
+const CATS = { charge:'شارژ ماهیانه', water:'قبض آب', gas:'قبض گاز', repair:'بازسازی', parking:'اجاره پارکینگ', debt:'پرداخت بدهی معوق', other:'سایر', bill:'کل صورتحساب ماه' };
 const OCC = ['مالک ساکن','مالک','مستأجر'];
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -331,7 +331,6 @@ function billCard(r, rep) {
       ${line('شارژ ماهیانه', r.charge, r.ok_charge)}
       ${line('سهم قبض آب', r.water, r.ok_water)}
       ${line('سهم قبض گاز', r.gas, r.exempt_gas ? null : r.ok_gas)}
-      ${line('سهم قبض برق', r.electric, r.exempt_electric ? null : r.ok_electric)}
       ${line('بازسازی', r.repair, r.ok_repair)}
       ${r.parking > 0 ? line('اجاره پارکینگ', r.parking, r.ok_parking) : ''}
     </div>
@@ -391,7 +390,7 @@ async function viewDash(el) {
           <div style="font-size:34px;font-weight:900">${fa(fund.pending_payments)}</div></div>
         <div class="card"><h2>هزینه‌های ${rep.month_name}</h2>
           ${fund.month_expenses.length ? `<table>${fund.month_expenses.map(x => `<tr><td>${esc(x.location || 'سایر')}</td><td style="text-align:left">${money(x.amount)}</td></tr>`).join('')}</table>` : '<p class="muted">هزینه‌ای ثبت نشده</p>'}
-          <p class="muted" style="margin:10px 0 0">قبض آب ساختمان ${fmt(rep.water_total)} · قبض گاز ${fmt(rep.gas_total)} · قبض برق ${fmt(rep.electric_total)}</p></div>
+          <p class="muted" style="margin:10px 0 0">قبض آب ساختمان ${fmt(rep.water_total)} · قبض گاز ${fmt(rep.gas_total)}</p></div>
         <div class="card"><div class="row" style="justify-content:space-between"><span class="muted">موجودی قبلی (افتتاحیه)</span>${money(fund.opening_balance)}</div>
           <div class="row" style="justify-content:space-between"><span class="muted">کل درآمد</span>${money(fund.total_income)}</div>
           <div class="row" style="justify-content:space-between"><span class="muted">کل هزینه</span>${money(fund.total_expense)}</div></div>
@@ -408,7 +407,7 @@ async function viewDash(el) {
 }
 function reminderText(r, rep) {
   return `${S.building} - واحد ${r.unit_no}\nصورتحساب ${rep.month_name} ${rep.year}:\n` +
-    `شارژ ${fmt(r.charge)} | آب ${fmt(r.water)} | گاز ${fmt(r.gas)} | برق ${fmt(r.electric)} | بازسازی ${fmt(r.repair)}` +
+    `شارژ ${fmt(r.charge)} | آب ${fmt(r.water)} | گاز ${fmt(r.gas)} | بازسازی ${fmt(r.repair)}` +
     (r.parking ? ` | پارکینگ ${fmt(r.parking)}` : '') +
     `\nبدهی قبلی: ${fmt(r.prev_debt)}\nمانده قابل پرداخت: ${fmt(r.remaining)} تومان`;
 }
@@ -486,7 +485,7 @@ function approveModal(p) {
       <label class="f">مبلغ تاییدی (تومان)<input id="ap-a" value="${fmt(p.amount)}" inputmode="numeric"></label>
       <label class="f">یادداشت مدیر<input id="ap-n"></label>
     </div>
-    ${p.category === 'bill' ? '<p class="muted">مبلغ به ترتیب بین شارژ، آب، گاز، برق، بازسازی و پارکینگ همان ماه تقسیم می‌شود؛ مازاد به‌عنوان پرداخت بدهی معوق ثبت می‌شود.</p>' : ''}
+    ${p.category === 'bill' ? '<p class="muted">مبلغ به ترتیب بین شارژ، آب، گاز، بازسازی و پارکینگ همان ماه تقسیم می‌شود؛ مازاد به‌عنوان پرداخت بدهی معوق ثبت می‌شود.</p>' : ''}
     <div class="row" style="margin-top:14px"><button class="btn" id="ap-go">تایید و ثبت در جدول تراکنش‌ها</button></div>
     <div id="ap-out"></div>`);
   $('#ap-a', m).addEventListener('input', e => { const n = toNum(e.target.value); e.target.value = n ? fmt(n) : ''; });
@@ -507,7 +506,8 @@ function approveModal(p) {
     } catch (e) { toast(e.message, true); }
   };
   $('#ap-go', m).addEventListener('click', () => run(false));
-}// =====================================================================
+}
+// =====================================================================
 //  تراکنش‌ها
 // =====================================================================
 async function viewTx(el) {
@@ -520,7 +520,6 @@ async function viewTx(el) {
   const exp = rows.filter(t => t.tx_type === 'هزینه').reduce((s, t) => s + t.amount, 0);
   const units = admin ? await T('app_get_units') : [];
   const phoneOf = u => { const un = units.find(x => x.unit_no === u); const a = un?.accounts.find(a => a.is_primary && a.is_active) || un?.accounts[0]; return a?.phone; };
-  
   el.innerHTML = `
     <div class="spread"><div><h1>تراکنش‌ها</h1><p class="sub" style="margin:0">درآمد ${fmt(inc)} · هزینه ${fmt(exp)} · ${fa(rows.length)} ردیف</p></div>
       <div class="row">${admin ? '<button class="btn sf" id="tx-new">ثبت درآمد / هزینه</button>' : ''}<button class="btn lt" id="tx-csv">خروجی اکسل</button></div></div>
@@ -542,7 +541,6 @@ async function viewTx(el) {
         ${t.unit_no ? smsBtn(phoneOf(t.unit_no), `${S.building} - واحد ${t.unit_no}\n${t.tx_type === 'درآمد' ? 'دریافت' : 'ثبت'} ${fmt(t.amount)} تومان بابت ${t.description} (${t.month_name} ${t.year}) ثبت شد.`) : ''}
         <button class="btn lt sm" data-ed="${t.id}">ویرایش</button><button class="btn rd sm" data-dl="${t.id}">حذف</button></div></td>` : ''}
     </tr>`).join('') || `<tr><td colspan="10" class="muted">تراکنشی نیست</td></tr>`}</tbody></table></div>`;
-    
   const upd = () => { f.y = $('#f-y').value; f.m = $('#f-m').value; f.unit = $('#f-u')?.value ?? ''; f.type = $('#f-t').value; f.occ = $('#f-o')?.value ?? ''; go('tx'); };
   ['#f-y', '#f-m', '#f-u', '#f-t', '#f-o'].forEach(s => $(s)?.addEventListener('change', upd));
   $('#tx-csv').addEventListener('click', () => exportCsv(rows));
@@ -554,7 +552,6 @@ async function viewTx(el) {
     try { await T('app_admin_delete_transaction', { p_id: +b.dataset.dl }); toast('حذف شد'); go('tx'); } catch (e) { toast(e.message, true); }
   }));
 }
-
 function txModal(t, units) {
   const isNew = !t; t = t || { year: TODAY.y, month: TODAY.m, day: TODAY.d, unit_no: null, tx_type: 'درآمد', category: 'charge', location: '', description: '', amount: '', occupancy: '' };
   const m = modal(`<h2>${isNew ? 'ثبت تراکنش جدید' : 'ویرایش تراکنش'}</h2>
@@ -594,19 +591,15 @@ function txModal(t, units) {
   };
   $('#tf', m).addEventListener('submit', e => { e.preventDefault(); run(false); });
 }
-
 function exportCsv(rows) {
-  // استفاده از سمی‌کالن برای سازگاری با اکسل فارسی
   const sep = ';';
   const head = ['تاریخ', 'سال', 'ماه', 'واحد', 'نوع', 'محل', 'شرح', 'مبلغ', 'نوع سکونت'];
   const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
   const lines = [head.map(q).join(sep)].concat(rows.slice().reverse().map(t =>
     [t.tx_date, t.year, t.month_name, t.unit_no ? 'واحد ' + t.unit_no : 'ساختمان', t.tx_type, t.location, t.description, t.amount, t.occupancy].map(q).join(sep)));
-  // اضافه کردن BOM برای اکسل
   const blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Transactions.csv'; a.click();
 }
-
 // =====================================================================
 //  گزارش ماهانه
 // =====================================================================
@@ -617,25 +610,24 @@ async function viewReport(el) {
   const sum = k => rep.rows.reduce((s, r) => s + (r[k] || 0), 0);
   el.innerHTML = `
     <div class="spread"><div><h1>گزارش ${rep.month_name} ${fa(rep.year)}</h1>
-      <p class="sub" style="margin:0">شارژ ${fmt(rep.rate?.charge)} · بازسازی ${fmt(rep.rate?.repair)} · پارکینگ ${fmt(rep.rate?.parking)} · قبض آب ${fmt(rep.water_total)} · قبض گاز ${fmt(rep.gas_total)} · قبض برق ${fmt(rep.electric_total)}</p></div>
+      <p class="sub" style="margin:0">شارژ ${fmt(rep.rate?.charge)} · بازسازی ${fmt(rep.rate?.repair)} · پارکینگ ${fmt(rep.rate?.parking)} · قبض آب ${fmt(rep.water_total)} · قبض گاز ${fmt(rep.gas_total)}</p></div>
       <div class="row">${periodPicker()}<button class="btn lt no-print" onclick="window.print()">چاپ / PDF</button></div></div>
     ${rep.missing_rates?.length ? `<div class="banner no-print">نرخ ماه‌های ${rep.missing_rates.map(fa).join('، ')} تعریف نشده و صفر حساب شده.</div>` : ''}
     <div class="tbl-wrap"><table><thead><tr>
-      <th>واحد</th><th>نفرات</th><th>شارژ</th><th>قبض آب</th><th>قبض گاز</th><th>قبض برق</th><th>بازسازی</th><th>پارکینگ</th>
+      <th>واحد</th><th>نفرات</th><th>شارژ</th><th>قبض آب</th><th>قبض گاز</th><th>بازسازی</th><th>پارکینگ</th>
       <th>بدهی قبلی</th><th>جمع قابل پرداخت</th><th>پرداختی ماه</th><th>مانده</th>${S.me.is_admin ? '<th class="no-print"></th>' : ''}</tr></thead><tbody>
     ${rep.rows.map(r => `<tr>
       <td><b>واحد ${fa(r.unit_no)}</b><br><span class="muted">${esc(r.full_name || '')}</span></td><td>${fa(r.persons)}</td>
-      ${cell(r.charge, r.ok_charge)}${cell(r.water, r.ok_water)}${cell(r.gas, r.ok_gas, r.exempt_gas)}${cell(r.electric, r.ok_electric, r.exempt_electric)}${cell(r.repair, r.ok_repair)}
+      ${cell(r.charge, r.ok_charge)}${cell(r.water, r.ok_water)}${cell(r.gas, r.ok_gas, r.exempt_gas)}${cell(r.repair, r.ok_repair)}
       ${r.parking ? cell(r.parking, r.ok_parking) : '<td class="muted">—</td>'}
       <td>${money(r.prev_debt)}</td><td><b>${money(r.total_payable)}</b></td><td>${money(r.paid_this_month)}</td>
       <td><b>${money(r.remaining)}</b></td>
       ${S.me.is_admin ? `<td class="no-print">${r.remaining > 0 ? smsBtn(r.phone, reminderText(r, rep), 'یادآوری') : ''}</td>` : ''}
     </tr>`).join('')}
-    ${S.me.is_admin ? `<tr style="background:#f6f1ec;font-weight:700"><td>جمع</td><td>${fa(sum('persons'))}</td><td>${money(sum('charge'))}</td><td>${money(sum('water'))}</td><td>${money(sum('gas'))}</td><td>${money(sum('electric'))}</td><td>${money(sum('repair'))}</td><td>${money(sum('parking'))}</td><td>${money(sum('prev_debt'))}</td><td>${money(sum('total_payable'))}</td><td>${money(sum('paid_this_month'))}</td><td>${money(sum('remaining'))}</td><td class="no-print"></td></tr>` : ''}
+    ${S.me.is_admin ? `<tr style="background:#f6f1ec;font-weight:700"><td>جمع</td><td>${fa(sum('persons'))}</td><td>${money(sum('charge'))}</td><td>${money(sum('water'))}</td><td>${money(sum('gas'))}</td><td>${money(sum('repair'))}</td><td>${money(sum('parking'))}</td><td>${money(sum('prev_debt'))}</td><td>${money(sum('total_payable'))}</td><td>${money(sum('paid_this_month'))}</td><td>${money(sum('remaining'))}</td><td class="no-print"></td></tr>` : ''}
     </tbody></table></div>`;
   bindPeriod(() => go('report'));
 }
-
 // =====================================================================
 //  مدیریت واحدها (Admin)
 // =====================================================================
@@ -652,7 +644,6 @@ async function viewUnits(el) {
   </div>`).join('')}</div>`;
   $$('[data-u]').forEach(b => b.addEventListener('click', () => unitModal(units.find(u => u.unit_no == b.dataset.u))));
 }
-
 function accForm(a, unitNo) {
   a = a || { id: '', username: '', full_name: '', phone: '', email: '', occupancy: 'مالک ساکن', is_primary: true, is_active: true };
   return `<form class="acc grid g3" data-id="${a.id}">
@@ -667,7 +658,6 @@ function accForm(a, unitNo) {
       <button class="btn sm" style="margin-right:auto">${a.id ? 'ذخیره حساب' : 'افزودن حساب'}</button></div>
   </form>`;
 }
-
 function unitModal(u) {
   const m = modal(`<h2>واحد ${fa(u.unit_no)}</h2>
     <form id="uf" class="grid g3">
@@ -676,7 +666,7 @@ function unitModal(u) {
       <label class="f">نوع سکونت<select id="u-o">${OCC.map(o => `<option ${u.occupancy === o ? 'selected' : ''}>${o}</option>`).join('')}</select></label>
       <div class="checks" style="grid-column:1/-1"><label><input type="checkbox" id="u-pk" ${u.has_parking ? 'checked' : ''}>اجاره پارکینگ دارد</label></div>
       <div style="grid-column:1/-1"><span class="muted">معافیت‌ها</span><div class="checks">
-        ${['charge', 'water', 'gas', 'electric', 'repair', 'parking'].map(c => `<label><input type="checkbox" value="${c}" class="u-ex" ${u.exemptions.includes(c) ? 'checked' : ''}>${CATS[c]}</label>`).join('')}</div></div>
+        ${['charge', 'water', 'gas', 'repair', 'parking'].map(c => `<label><input type="checkbox" value="${c}" class="u-ex" ${u.exemptions.includes(c) ? 'checked' : ''}>${CATS[c]}</label>`).join('')}</div></div>
       <label class="f" style="grid-column:1/-1">یادداشت<input id="u-n" value="${esc(u.notes || '')}"></label>
       <div style="grid-column:1/-1"><button class="btn sf">ذخیره واحد</button></div>
     </form>
@@ -708,7 +698,6 @@ function unitModal(u) {
   });
   m.addEventListener('click', e => { if (e.target === m || e.target.classList.contains('x')) go('units'); });
 }
-
 // =====================================================================
 //  نرخ‌ها (Table3) و تنظیمات
 // =====================================================================
@@ -767,8 +756,8 @@ async function viewRates(el) {
           چه کسی می‌دهد؟ ${OCC.map(o => `<label style="display:flex;align-items:center;gap:3px;cursor:pointer"><input type="checkbox" value="${o}" class="r-ppk" checked> ${o.replace('مالک ساکن', 'ساکن')}</label>`).join('')}
         </div>
         
-        <label class="f" style="grid-column:1/-1; font-size:12px; color:var(--muted); margin-top:8px;">توجه: تنظیم پرداخت‌کننده برای آب، گاز و برق به صورت سراسری اعمال می‌شود.</label>
-        <label class="f" style="grid-column:1/-1">آب / گاز / برق</label>
+        <label class="f" style="grid-column:1/-1; font-size:12px; color:var(--muted); margin-top:8px;">توجه: تنظیم پرداخت‌کننده برای آب، گاز به صورت سراسری اعمال می‌شود.</label>
+        <label class="f" style="grid-column:1/-1">آب / گاز</label>
         <div style="grid-column:1/-1; display:flex; align-items:center; gap:8px;">
           ${OCC.map(o => `<label style="display:flex;align-items:center;gap:3px;cursor:pointer"><input type="checkbox" value="${o}" class="r-pu" checked> ${o.replace('مالک ساکن', 'ساکن')}</label>`).join('')}
         </div>
@@ -819,8 +808,7 @@ async function viewRates(el) {
         p_payer_repair: getChecked('r-prp'), 
         p_payer_parking: getChecked('r-ppk'),
         p_payer_water: getChecked('r-pu'), 
-        p_payer_gas: getChecked('r-pu'), 
-        p_payer_electric: getChecked('r-pu')
+        p_payer_gas: getChecked('r-pu')
       });
       toast('نرخ ذخیره شد'); go('rates'); 
     } catch (err) { toast(err.message, true); }
@@ -833,7 +821,6 @@ async function viewRates(el) {
       toast('تنظیمات ذخیره شد'); renderShell(); } catch (err) { toast(err.message, true); }
   });
 }
-
 // =====================================================================
 //  پروفایل
 // =====================================================================
@@ -861,9 +848,7 @@ async function viewProfile(el) {
     } catch (err) { toast(err.message, true); }
   });
 }
-
 // =====================================================================
 S.token ? renderShell() : renderLogin();
 </script>
-
 </body></html>
