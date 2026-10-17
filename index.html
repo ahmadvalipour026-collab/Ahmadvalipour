@@ -280,7 +280,7 @@ function billCard(r, rep) {
   const line = (label, amt, ok, extra = '') => `
     <div class="bill-line"><span>${label} ${extra}</span>
       <span class="row" style="gap:10px">${money(amt)} 
-      ${amt === 0 ? '<span class="chip ex">هزینه‌ای ندارد</span>' : (ok ? '<span class="chip ok">✓ پرداخت شده</span>' : '<span class="chip no">پرداخت نشده</span>')}
+      ${amt === 0 ? '<span class="chip ex">—</span>' : (ok ? '<span class="chip ok">✓ پرداخت شده</span>' : '<span class="chip no">پرداخت نشده</span>')}
       </span></div>`;
   return `<div class="card bill">
     <div class="bill-head"><div><div class="muted" style="color:#cfe3e8">صورتحساب ${rep.month_name} ${fa(rep.year)} · واحد ${fa(r.unit_no)}</div>
