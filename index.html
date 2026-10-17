@@ -277,21 +277,22 @@ function go(v) {
 const mustChangeBanner = () => S.me?.must_change_password ? `<div class="banner">رمز عبور شما هنوز پیش‌فرض است. از بخش <a href="#" onclick="go('profile');return false">پروفایل</a> آن را تغییر دهید.</div>` : '';
 
 function billCard(r, rep) {
-  const line = (label, amt, ok, ex, extra = '') => `
+  // منطق ساده: اگر پرداخت شده بزن "پرداخت شده" وگرنه "پرداخت نشده" (مبلغ صفر هم پرداخت شده حساب میشه)
+  const line = (label, amt, ok, extra = '') => `
     <div class="bill-line"><span>${label} ${extra}</span>
       <span class="row" style="gap:10px">${money(amt)} 
-      ${ex ? '<span class="chip ex">معاف</span>' : (amt === 0 ? '' : (ok ? '<span class="chip ok">✓ پرداخت شده</span>' : '<span class="chip no">پرداخت نشده</span>'))}
+      ${(amt === 0 || ok) ? '<span class="chip ok">✓ پرداخت شده</span>' : '<span class="chip no">پرداخت نشده</span>'}
       </span></div>`;
   return `<div class="card bill">
     <div class="bill-head"><div><div class="muted" style="color:#cfe3e8">صورتحساب ${rep.month_name} ${fa(rep.year)} · واحد ${fa(r.unit_no)}</div>
       <div style="font-weight:700">${esc(r.full_name || '')} · ${fa(r.persons)} نفر</div></div>
       <div style="text-align:left"><small style="color:#cfe3e8">مانده قابل پرداخت (تومان)</small><div class="big num">${fmt(r.remaining)}</div></div></div>
     <div class="bill-lines">
-      ${line('شارژ ماهیانه', r.charge, r.ok_charge, r.ex_charge)}
-      ${line('سهم قبض آب', r.water, r.ok_water, r.ex_water)}
-      ${line('سهم قبض گاز', r.gas, r.ok_gas, r.ex_gas)}
-      ${line('بازسازی', r.repair, r.ok_repair, r.ex_repair)}
-      ${r.parking > 0 || r.ex_parking ? line('اجاره پارکینگ', r.parking, r.ok_parking, r.ex_parking) : ''}
+      ${line('شارژ ماهیانه', r.charge, r.ok_charge)}
+      ${line('سهم قبض آب', r.water, r.ok_water)}
+      ${line('سهم قبض گاز', r.gas, r.ok_gas)}
+      ${line('بازسازی', r.repair, r.ok_repair)}
+      ${r.parking > 0 ? line('اجاره پارکینگ', r.parking, r.ok_parking) : ''}
     </div>
     <div class="bill-foot">
       <div class="kv"><small>بدهی قبلی</small><b>${money(r.prev_debt)}</b></div>
@@ -538,6 +539,7 @@ async function viewUnits(el) {
 }
 function accForm(a, unitNo) {
   a = a || { id: '', username: '', full_name: '', phone: '', email: '', occupancy: 'مالک ساکن', is_primary: true, is_active: true };
+  // رفع باگ نام کاربری تعریف نشده با استفاده از مقدار پیش‌فرض
   return `<form class="acc grid g3" data-id="${a.id}" style="background:#f9f9f9; padding:12px; border-radius:8px; margin-bottom:10px;">
     <label class="f">نام و نام خانوادگی<input name="full_name" value="${esc(a.full_name || '')}"></label>
     <label class="f">موبایل<input name="phone" dir="ltr" value="${esc(a.phone || '')}"></label>
