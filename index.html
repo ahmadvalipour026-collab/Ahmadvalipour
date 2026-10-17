@@ -123,16 +123,9 @@ tr:hover td{background:#fcfaf8}
 <div id="app"></div>
 <div id="toast" class="toast"></div>
 <script>
-// =====================================================================
-//  تنظیمات Supabase
-// =====================================================================
 const SUPABASE_URL = 'https://hpgvgoehkcpjmdbfmnse.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_BuJxTaMP2rYWTe5mh-N55Q_gSHE1O8g';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false } });
-
-// =====================================================================
-//  کمکی‌ها
-// =====================================================================
 const MONTHS = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
 const CATS = { charge:'شارژ ماهیانه', water:'قبض آب', gas:'قبض گاز', repair:'بازسازی', parking:'اجاره پارکینگ', debt:'پرداخت بدهی معوق', other:'سایر', bill:'کل صورتحساب ماه' };
 const OCC = ['مالک ساکن','مالک','مستأجر'];
@@ -143,26 +136,22 @@ const fmt = n => new Intl.NumberFormat('fa-IR').format(Math.round(Number(n) || 0
 const money = n => `<span class="num ${Number(n) < 0 ? 'neg' : ''}">${fmt(n)}</span>`;
 const fa = v => String(v ?? '').replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
 const toNum = v => Number(String(v ?? '').replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[^\d.-]/g, '')) || 0;
-
 function jalaliToday() {
   const p = new Intl.DateTimeFormat('en-US-u-ca-persian-nu-latn', { year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(new Date());
   const g = t => Number(p.find(x => x.type === t)?.value);
   return { y: g('year'), m: g('month'), d: g('day') };
 }
 const TODAY = jalaliToday();
-
 function toast(msg, err = false) {
   const t = $('#toast');
   t.textContent = msg; t.className = 'toast on' + (err ? ' err' : '');
   clearTimeout(t._h); t._h = setTimeout(() => t.className = 'toast', 3200);
 }
-
 const S = {
   token: localStorage.getItem('bm_token'),
   me: JSON.parse(localStorage.getItem('bm_me') || 'null'),
   view: 'dash', y: TODAY.y, m: TODAY.m, building: 'ساختمان',
 };
-
 async function api(fn, args = {}) {
   const { data, error } = await sb.rpc(fn, args);
   if (error) {
@@ -173,7 +162,6 @@ async function api(fn, args = {}) {
   return data;
 }
 const T = (fn, args = {}) => api(fn, { p_token: S.token, ...args });
-
 function smsLink(phone, text) {
   if (!phone) return '';
   const sep = /iPhone|iPad|iPod/.test(navigator.userAgent) ? '&' : '?';
@@ -194,7 +182,6 @@ const unitOptions = (sel, withBuilding = true, withAll = false) =>
   (withAll ? `<option value="">همه</option>` : '') +
   (withBuilding ? `<option value="0" ${sel === 0 || sel === '0' ? 'selected' : ''}>ساختمان</option>` : '') +
   Array.from({ length: 10 }, (_, i) => `<option value="${i + 1}" ${sel == i + 1 ? 'selected' : ''}>واحد ${fa(i + 1)}</option>`).join('');
-
 function periodPicker() {
   return `<div class="row no-print">
     <select id="pk-m" style="width:auto">${monthOptions(S.m)}</select>
@@ -212,10 +199,6 @@ function modal(html) {
   document.body.appendChild(bg);
   return bg;
 }
-
-// =====================================================================
-//  ورود
-// =====================================================================
 async function renderLogin() {
   document.title = 'ورود | مدیریت ساختمان';
   $('#app').innerHTML = `
@@ -262,10 +245,6 @@ async function logout(silent = false) {
   localStorage.removeItem('bm_token'); localStorage.removeItem('bm_me');
   renderLogin();
 }
-
-// =====================================================================
-//  قالب اصلی
-// =====================================================================
 function tabs() {
   const a = S.me?.is_admin;
   return [ ['dash', 'داشبورد'], a && ['units', 'واحدها'], ['tx', 'تراکنش‌ها'], ['pay', a ? 'تایید پرداخت‌ها' : 'پرداخت بدهی'], ['report', 'گزارش ماهانه'], a && ['rates', 'نرخ‌ها و تنظیمات'], ['profile', 'پروفایل'] ].filter(Boolean);
@@ -297,18 +276,28 @@ function go(v) {
 }
 const mustChangeBanner = () => S.me?.must_change_password ? `<div class="banner">رمز عبور شما هنوز پیش‌فرض است. از بخش <a href="#" onclick="go('profile');return false">پروفایل</a> آن را تغییر دهید.</div>` : '';
 
-// =====================================================================
-//  داشبورد
-// =====================================================================
 function billCard(r, rep) {
-  const line = (label, amt, ok, extra = '') => `<div class="bill-line"><span>${label} ${extra}</span><span class="row" style="gap:10px">${money(amt)} ${ok === null ? '<span class="chip ex">معاف</span>' : ok ? '<span class="chip ok">✓ پرداخت شده</span>' : '<span class="chip no">پرداخت نشده</span>'}</span></div>`;
+  const line = (label, amt, ok, extra = '') => `
+    <div class="bill-line"><span>${label} ${extra}</span>
+      <span class="row" style="gap:10px">${money(amt)} 
+      ${amt === 0 ? '<span class="chip ex">هزینه‌ای ندارد</span>' : (ok ? '<span class="chip ok">✓ پرداخت شده</span>' : '<span class="chip no">پرداخت نشده</span>')}
+      </span></div>`;
   return `<div class="card bill">
-    <div class="bill-head"><div><div class="muted" style="color:#cfe3e8">صورتحساب ${rep.month_name} ${fa(rep.year)} · واحد ${fa(r.unit_no)}</div><div style="font-weight:700">${esc(r.full_name || '')} · ${fa(r.persons)} نفر</div></div><div style="text-align:left"><small style="color:#cfe3e8">مانده قابل پرداخت (تومان)</small><div class="big num">${fmt(r.remaining)}</div></div></div>
+    <div class="bill-head"><div><div class="muted" style="color:#cfe3e8">صورتحساب ${rep.month_name} ${fa(rep.year)} · واحد ${fa(r.unit_no)}</div>
+      <div style="font-weight:700">${esc(r.full_name || '')} · ${fa(r.persons)} نفر</div></div>
+      <div style="text-align:left"><small style="color:#cfe3e8">مانده قابل پرداخت (تومان)</small><div class="big num">${fmt(r.remaining)}</div></div></div>
     <div class="bill-lines">
-      ${line('شارژ ماهیانه', r.charge, r.ok_charge)}${line('سهم قبض آب', r.water, r.ok_water)}${line('سهم قبض گاز', r.gas, r.exempt_gas ? null : r.ok_gas)}${line('بازسازی', r.repair, r.ok_repair)}${r.parking > 0 ? line('اجاره پارکینگ', r.parking, r.ok_parking) : ''}
+      ${line('شارژ ماهیانه', r.charge, r.ok_charge)}
+      ${line('سهم قبض آب', r.water, r.ok_water)}
+      ${line('سهم قبض گاز', r.gas, r.ok_gas)}
+      ${line('بازسازی', r.repair, r.ok_repair)}
+      ${r.parking > 0 ? line('اجاره پارکینگ', r.parking, r.ok_parking) : ''}
     </div>
     <div class="bill-foot">
-      <div class="kv"><small>بدهی قبلی</small><b>${money(r.prev_debt)}</b></div><div class="kv"><small>هزینه این ماه</small><b>${money(r.current_due)}</b></div><div class="kv"><small>جمع قابل پرداخت</small><b>${money(r.total_payable)}</b></div><div class="kv"><small>پرداختی این ماه</small><b>${money(r.paid_this_month)}</b></div>
+      <div class="kv"><small>بدهی قبلی</small><b>${money(r.prev_debt)}</b></div>
+      <div class="kv"><small>هزینه این ماه</small><b>${money(r.current_due)}</b></div>
+      <div class="kv"><small>جمع قابل پرداخت</small><b>${money(r.total_payable)}</b></div>
+      <div class="kv"><small>پرداختی این ماه</small><b>${money(r.paid_this_month)}</b></div>
     </div></div>`;
 }
 async function viewDash(el) {
@@ -360,10 +349,6 @@ function reminderText(r, rep) {
     (r.parking ? ` | پارکینگ ${fmt(r.parking)}` : '') +
     `\nبدهی قبلی: ${fmt(r.prev_debt)}\nمانده قابل پرداخت: ${fmt(r.remaining)} تومان`;
 }
-
-// =====================================================================
-//  پرداخت بدهی (ساکن) / تایید پرداخت (مدیر)
-// =====================================================================
 function reqTable(list, admin) {
   if (!list.length) return `<p class="muted">موردی نیست</p>`;
   const st = s => s === 'approved' ? '<span class="chip ok">تایید شد</span>' : s === 'rejected' ? '<span class="chip no">رد شد</span>' : '<span class="chip pd">منتظر تایید</span>';
@@ -436,10 +421,6 @@ function approveModal(p) {
   };
   $('#ap-go', m).addEventListener('click', () => run(false));
 }
-
-// =====================================================================
-//  تراکنش‌ها
-// =====================================================================
 async function viewTx(el) {
   const admin = S.me.is_admin;
   const f = S.txFilter || (S.txFilter = { y: S.y, m: '', unit: '', type: '', occ: '' });
@@ -521,10 +502,6 @@ function exportCsv(rows) {
   const blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Transactions.csv'; a.click();
 }
-
-// =====================================================================
-//  گزارش ماهانه
-// =====================================================================
 async function viewReport(el) {
   const rep = await T('app_report', { p_year: S.y, p_month: S.m });
   const ok = (v, ex) => ex ? '<span class="chip ex">معاف</span>' : v ? '<span class="chip ok">OK</span>' : '<span class="chip no">نشده</span>';
@@ -535,7 +512,7 @@ async function viewReport(el) {
     ${rep.missing_rates?.length ? `<div class="banner no-print">نرخ ماه‌های ${rep.missing_rates.map(fa).join('، ')} تعریف نشده و صفر حساب شده.</div>` : ''}
     <div class="tbl-wrap"><table><thead><tr><th>واحد</th><th>نفرات</th><th>شارژ</th><th>قبض آب</th><th>قبض گاز</th><th>بازسازی</th><th>پارکینگ</th><th>بدهی قبلی</th><th>جمع قابل پرداخت</th><th>پرداختی ماه</th><th>مانده</th>${S.me.is_admin ? '<th class="no-print"></th>' : ''}</tr></thead><tbody>
     ${rep.rows.map(r => `<tr>
-      <td><b>واحد ${fa(r.unit_no)}</b><br><span class="muted">${esc(r.full_name || '')}</span></td><td>${fa(r.persons)}</td>
+      <td><b>واحد ${fa(r.unit_no)}</b> <span class="chip ex">${esc(r.occupancy)}</span><br><span class="muted">${esc(r.full_name || '')}</span></td><td>${fa(r.persons)}</td>
       ${cell(r.charge, r.ok_charge)}${cell(r.water, r.ok_water)}${cell(r.gas, r.ok_gas, r.exempt_gas)}${cell(r.repair, r.ok_repair)}${r.parking ? cell(r.parking, r.ok_parking) : '<td class="muted">—</td>'}
       <td>${money(r.prev_debt)}</td><td><b>${money(r.total_payable)}</b></td><td>${money(r.paid_this_month)}</td><td><b>${money(r.remaining)}</b></td>
       ${S.me.is_admin ? `<td class="no-print">${r.remaining > 0 ? smsBtn(r.phone, reminderText(r, rep), 'یادآوری') : ''}</td>` : ''}
@@ -544,10 +521,6 @@ async function viewReport(el) {
     </tbody></table></div>`;
   bindPeriod(() => go('report'));
 }
-
-// =====================================================================
-//  مدیریت واحدها (Admin)
-// =====================================================================
 async function viewUnits(el) {
   const units = await T('app_get_units');
   el.innerHTML = `<h1>واحدها</h1><p class="sub">مشخصات، نفرات، معافیت‌ها و حساب‌های کاربری ساکنین. تغییرات پروفایل ساکنین همین‌جا دیده می‌شود.</p>
@@ -641,10 +614,6 @@ function unitModal(u) {
   
   m.addEventListener('click', e => { if (e.target === m || e.target.classList.contains('x')) go('units'); });
 }
-
-// =====================================================================
-//  نرخ‌ها (Table3) و تنظیمات
-// =====================================================================
 async function viewRates(el) {
   const [rates, st] = await Promise.all([T('app_get_rates'), T('app_get_settings')]);
   const payerChecks = (idPrefix, arrVal) => {
@@ -676,7 +645,6 @@ async function viewRates(el) {
       </form>
     </div>
   </div>`;
-
   $$('#r-c,#r-r,#r-p,#s-o').forEach(i => i.addEventListener('input', e => { const n = toNum(e.target.value); e.target.value = n ? fmt(n) : ''; }));
   $$('[data-er]').forEach(b => b.addEventListener('click', () => {
     const [y, mo] = b.dataset.er.split('-').map(Number); const r = rates.find(x => x.year === y && x.month === mo);
@@ -706,10 +674,6 @@ async function viewRates(el) {
     try { await T('app_admin_save_settings', { p_building_name: $('#s-n').value, p_opening_balance: toNum($('#s-o').value), p_start_ym: s }); toast('تنظیمات ذخیره شد'); renderShell(); } catch (err) { toast(err.message, true); }
   });
 }
-
-// =====================================================================
-//  پروفایل
-// =====================================================================
 async function viewProfile(el) {
   const a = S.me;
   el.innerHTML = `${mustChangeBanner()}<h1>پروفایل</h1><p class="sub">واحد ${fa(a.unit_no)} · ${esc(a.occupancy)}.</p>
