@@ -308,7 +308,7 @@ function go(v) {
 const mustChangeBanner = () => S.me?.must_change_password ? `<div class="banner">رمز عبور شما هنوز پیش‌فرض است. از بخش <a href="#" onclick="go('profile');return false">پروفایل</a> آن را تغییر دهید.</div>` : '';
 
 // =====================================================================
-//  اعلانات و درخواست‌ها (جدید)
+//  اعلانات و درخواست‌ها
 // =====================================================================
 async function viewAnnouncements(el) {
   const list = await T('app_get_announcements');
@@ -648,8 +648,9 @@ async function viewUnits(el) {
 function accForm(a, unitNo) {
   a = a || { id: '', username: '', full_name: '', phone: '', email: '', occupancy: 'مالک ساکن', is_primary: true, is_active: true };
   return `<form class="acc grid g3" data-id="${a.id}" style="background:#f9f9f9; padding:12px; border-radius:8px; margin-bottom:10px;">
-    <label class="f">نام<input name="full_name" value="${esc(a.full_name || '')}"></label>
+    <label class="f">نام و نام خانوادگی<input name="full_name" value="${esc(a.full_name || '')}"></label>
     <label class="f">موبایل<input name="phone" dir="ltr" value="${esc(a.phone || '')}"></label>
+    <label class="f">ایمیل<input name="email" dir="ltr" type="email" value="${esc(a.email || '')}"></label>
     <label class="f">سکونت<select name="occupancy">${OCC.map(o => `<option ${a.occupancy === o ? 'selected' : ''}>${o}</option>`).join('')}</select></label>
     <label class="f">نام کاربری<input name="username" dir="ltr" value="${esc(a.username || '')}" required></label>
     <label class="f">${a.id ? 'رمز جدید' : 'رمز (پیش‌فرض 1234)'}<input name="pass" dir="ltr" type="text"></label>
