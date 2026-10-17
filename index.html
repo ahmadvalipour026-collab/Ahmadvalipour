@@ -277,6 +277,7 @@ function tabs() {
     ['pay', a ? 'تایید پرداخت‌ها' : 'پرداخت بدهی'], 
     ['report', 'گزارش ماهانه'], 
     a && ['rates', 'نرخ‌ها و تنظیمات'], 
+    a && ['activity', 'آمار ورود و خروج'],
     ['profile', 'پروفایل'] 
   ].filter(Boolean);
 }
@@ -300,7 +301,7 @@ async function renderShell() {
 function go(v) {
   S.view = v;
   $$('nav.tabs button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
-  const map = { dash: viewDash, units: viewUnits, announcements: viewAnnouncements, requests: viewRequests, tx: viewTx, pay: viewPay, report: viewReport, rates: viewRates, profile: viewProfile };
+  const map = { dash: viewDash, units: viewUnits, announcements: viewAnnouncements, requests: viewRequests, tx: viewTx, pay: viewPay, report: viewReport, rates: viewRates, activity: viewActivity, profile: viewProfile };
   const el = $('#view');
   el.innerHTML = `<p class="muted">در حال بارگذاری…</p>`;
   (map[v] || viewDash)(el).catch(e => { el.innerHTML = `<div class="banner">${esc(e.message)}</div>`; });
@@ -387,6 +388,41 @@ async function viewRequests(el) {
       try { await T('app_admin_update_request', { p_id: +b.dataset.ok, p_status: 'done' }); toast('وضعیت تغییر کرد'); go('requests'); } catch (e) { toast(e.message, true); }
     }));
   }
+}
+
+// =====================================================================
+//  آمار ورود و خروج (فقط مدیر)
+// =====================================================================
+async function viewActivity(el) {
+  const logs = await T('app_admin_get_activity_logs');
+  
+  // محاسبه تعداد ورود امروز
+  const today = new Date().toDateString();
+  const todayLogins = logs.filter(l => l.action === 'login' && new Date(l.created_at).toDateString() === today).length;
+
+  el.innerHTML = `<h1>آمار ورود و خروج</h1><p class="sub">گزارش آخرین فعالیت‌های ساکنین در سیستم</p>
+  
+  <div class="grid g3" style="margin-bottom:20px">
+    <div class="card stat hero-balance">
+      <small>ورودهای امروز</small>
+      <b>${fa(todayLogins)} نفر</b>
+    </div>
+    <div class="card stat">
+      <small>کل فعالیت‌های ثبت شده</small>
+      <b>${fa(logs.length)} مورد</b>
+    </div>
+  </div>
+
+  <div class="tbl-wrap"><table><thead><tr>
+    <th>نام</th><th>واحد</th><th>عملیات</th><th>زمان دقیق</th>
+  </tr></thead><tbody>
+    ${logs.map(l => `<tr>
+      <td><b>${esc(l.full_name || 'ناشناس')}</b></td>
+      <td>واحد ${fa(l.unit_no)}</td>
+      <td>${l.action === 'login' ? '<span class="chip ok">ورود</span>' : '<span class="chip no">خروج</span>'}</td>
+      <td class="num" style="font-size:13px; color:var(--muted);">${new Date(l.created_at).toLocaleString('fa-IR')}</td>
+    </tr>`).join('') || `<tr><td colspan="4" class="muted" style="text-align:center">هیچ لاگی ثبت نشده است.</td></tr>`}
+  </tbody></table></div>`;
 }
 
 // =====================================================================
