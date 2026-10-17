@@ -151,7 +151,6 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { pe
 const MONTHS = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
 const CATS = { charge:'شارژ ماهیانه', water:'قبض آب', gas:'قبض گاز', electric:'قبض برق', repair:'بازسازی', parking:'اجاره پارکینگ', debt:'پرداخت بدهی معوق', other:'سایر', bill:'کل صورتحساب ماه' };
 const OCC = ['مالک ساکن','مالک','مستأجر'];
-const PAYER_OPTS = [['both','هر دو (واحد)'],['مالک ساکن','مالک ساکن'],['مالک','مالک'],['مستأجر','مستأجر']];
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -508,8 +507,7 @@ function approveModal(p) {
     } catch (e) { toast(e.message, true); }
   };
   $('#ap-go', m).addEventListener('click', () => run(false));
-}
-// =====================================================================
+}// =====================================================================
 //  تراکنش‌ها
 // =====================================================================
 async function viewTx(el) {
@@ -522,6 +520,7 @@ async function viewTx(el) {
   const exp = rows.filter(t => t.tx_type === 'هزینه').reduce((s, t) => s + t.amount, 0);
   const units = admin ? await T('app_get_units') : [];
   const phoneOf = u => { const un = units.find(x => x.unit_no === u); const a = un?.accounts.find(a => a.is_primary && a.is_active) || un?.accounts[0]; return a?.phone; };
+  
   el.innerHTML = `
     <div class="spread"><div><h1>تراکنش‌ها</h1><p class="sub" style="margin:0">درآمد ${fmt(inc)} · هزینه ${fmt(exp)} · ${fa(rows.length)} ردیف</p></div>
       <div class="row">${admin ? '<button class="btn sf" id="tx-new">ثبت درآمد / هزینه</button>' : ''}<button class="btn lt" id="tx-csv">خروجی اکسل</button></div></div>
@@ -543,6 +542,7 @@ async function viewTx(el) {
         ${t.unit_no ? smsBtn(phoneOf(t.unit_no), `${S.building} - واحد ${t.unit_no}\n${t.tx_type === 'درآمد' ? 'دریافت' : 'ثبت'} ${fmt(t.amount)} تومان بابت ${t.description} (${t.month_name} ${t.year}) ثبت شد.`) : ''}
         <button class="btn lt sm" data-ed="${t.id}">ویرایش</button><button class="btn rd sm" data-dl="${t.id}">حذف</button></div></td>` : ''}
     </tr>`).join('') || `<tr><td colspan="10" class="muted">تراکنشی نیست</td></tr>`}</tbody></table></div>`;
+    
   const upd = () => { f.y = $('#f-y').value; f.m = $('#f-m').value; f.unit = $('#f-u')?.value ?? ''; f.type = $('#f-t').value; f.occ = $('#f-o')?.value ?? ''; go('tx'); };
   ['#f-y', '#f-m', '#f-u', '#f-t', '#f-o'].forEach(s => $(s)?.addEventListener('change', upd));
   $('#tx-csv').addEventListener('click', () => exportCsv(rows));
@@ -554,6 +554,7 @@ async function viewTx(el) {
     try { await T('app_admin_delete_transaction', { p_id: +b.dataset.dl }); toast('حذف شد'); go('tx'); } catch (e) { toast(e.message, true); }
   }));
 }
+
 function txModal(t, units) {
   const isNew = !t; t = t || { year: TODAY.y, month: TODAY.m, day: TODAY.d, unit_no: null, tx_type: 'درآمد', category: 'charge', location: '', description: '', amount: '', occupancy: '' };
   const m = modal(`<h2>${isNew ? 'ثبت تراکنش جدید' : 'ویرایش تراکنش'}</h2>
@@ -593,6 +594,7 @@ function txModal(t, units) {
   };
   $('#tf', m).addEventListener('submit', e => { e.preventDefault(); run(false); });
 }
+
 function exportCsv(rows) {
   // استفاده از سمی‌کالن برای سازگاری با اکسل فارسی
   const sep = ';';
@@ -604,6 +606,7 @@ function exportCsv(rows) {
   const blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Transactions.csv'; a.click();
 }
+
 // =====================================================================
 //  گزارش ماهانه
 // =====================================================================
@@ -632,6 +635,7 @@ async function viewReport(el) {
     </tbody></table></div>`;
   bindPeriod(() => go('report'));
 }
+
 // =====================================================================
 //  مدیریت واحدها (Admin)
 // =====================================================================
@@ -648,6 +652,7 @@ async function viewUnits(el) {
   </div>`).join('')}</div>`;
   $$('[data-u]').forEach(b => b.addEventListener('click', () => unitModal(units.find(u => u.unit_no == b.dataset.u))));
 }
+
 function accForm(a, unitNo) {
   a = a || { id: '', username: '', full_name: '', phone: '', email: '', occupancy: 'مالک ساکن', is_primary: true, is_active: true };
   return `<form class="acc grid g3" data-id="${a.id}">
@@ -662,6 +667,7 @@ function accForm(a, unitNo) {
       <button class="btn sm" style="margin-right:auto">${a.id ? 'ذخیره حساب' : 'افزودن حساب'}</button></div>
   </form>`;
 }
+
 function unitModal(u) {
   const m = modal(`<h2>واحد ${fa(u.unit_no)}</h2>
     <form id="uf" class="grid g3">
@@ -702,49 +708,74 @@ function unitModal(u) {
   });
   m.addEventListener('click', e => { if (e.target === m || e.target.classList.contains('x')) go('units'); });
 }
+
 // =====================================================================
 //  نرخ‌ها (Table3) و تنظیمات
 // =====================================================================
 async function viewRates(el) {
   const [rates, st] = await Promise.all([T('app_get_rates'), T('app_get_settings')]);
   
-  const payerSelect = (id, val) => `<select id="${id}" style="font-size:12px; padding:4px; min-height:30px;">${PAYER_OPTS.map(([v,l]) => `<option value="${v}" ${val === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`;
+  const payerChecks = (idPrefix, arrVal) => {
+    const selected = arrVal || OCC;
+    return `<div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center;">
+      ${OCC.map(o => `<label style="font-size:11px; display:flex; align-items:center; gap:2px; cursor:pointer;">
+        <input type="checkbox" value="${o}" class="${idPrefix}" ${selected.includes(o) ? 'checked' : ''}> ${o.replace('مالک ساکن', 'ساکن')}
+      </label>`).join('')}
+    </div>`;
+  };
   
   el.innerHTML = `<h1>نرخ‌ها و تنظیمات</h1><p class="sub">مبلغ شارژ، بازسازی، پارکینگ و تعیین اینکه چه کسی باید این هزینه‌ها را پرداخت کند.</p>
   <div class="grid g2">
     <div class="tbl-wrap">
-      <table style="min-width:600px;"><thead><tr><th>ماه</th><th>شارژ</th><th>بازسازی</th><th>پارکینگ</th><th></th></tr></thead><tbody>
-      ${rates.map(r => `<tr>
-        <td>${MONTHS[r.month - 1]} ${fa(r.year)}</td>
-        <td><div class="num">${fmt(r.charge)}</div>${payerSelect('ex_ch_'+r.ym, r.payer_charge || 'both')}</td>
-        <td><div class="num">${fmt(r.repair)}</div>${payerSelect('ex_rp_'+r.ym, r.payer_repair || 'both')}</td>
-        <td><div class="num">${fmt(r.parking)}</div>${payerSelect('ex_pk_'+r.ym, r.payer_parking || 'both')}</td>
-        <td><div class="row" style="gap:6px;flex-wrap:nowrap">
-          <button class="btn lt sm" data-er="${r.year}-${r.month}">ویرایش</button>
-          <button class="btn rd sm" data-dr="${r.year}-${r.month}">حذف</button>
-        </div></td>
-      </tr>`).join('')}
-    </tbody></table></div>
+      <table style="min-width:600px;">
+        <thead><tr><th>ماه</th><th>شارژ</th><th>چه کسی می‌دهد؟</th><th>بازسازی</th><th>چه کسی می‌دهد؟</th><th>پارکینگ</th><th>چه کسی می‌دهد؟</th><th></th></tr></thead>
+        <tbody>
+        ${rates.map(r => `<tr>
+          <td>${MONTHS[r.month - 1]} ${fa(r.year)}</td>
+          <td><div class="num">${fmt(r.charge)}</div></td>
+          <td>${payerChecks('ex_ch_'+r.ym, r.payer_charge)}</td>
+          <td><div class="num">${fmt(r.repair)}</div></td>
+          <td>${payerChecks('ex_rp_'+r.ym, r.payer_repair)}</td>
+          <td><div class="num">${fmt(r.parking)}</div></td>
+          <td>${payerChecks('ex_pk_'+r.ym, r.payer_parking)}</td>
+          <td><div class="row" style="gap:6px;flex-wrap:nowrap">
+            <button class="btn lt sm" data-er="${r.year}-${r.month}">ویرایش</button>
+            <button class="btn rd sm" data-dr="${r.year}-${r.month}">حذف</button>
+          </div></td>
+        </tr>`).join('')}
+      </tbody></table>
+    </div>
     
     <div class="grid" style="align-content:start">
       <form id="rf" class="card grid g3">
         <h2 style="grid-column:1/-1;margin:0">افزودن / ویرایش نرخ</h2>
         <label class="f">سال<select id="r-y">${yearOptions(TODAY.y)}</select></label>
         <label class="f">ماه<select id="r-m">${monthOptions(TODAY.m)}</select></label>
+        
         <label class="f">شارژ<input id="r-c" inputmode="numeric"></label>
-        <label class="f">چه کسی می‌دهد؟<select id="r-pch">${PAYER_OPTS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select></label>
+        <div style="grid-column:1/-1; font-size:12px; color:var(--muted); margin-top:-8px; display:flex; align-items:center; gap:8px;">
+          چه کسی می‌دهد؟ ${OCC.map(o => `<label style="display:flex;align-items:center;gap:3px;cursor:pointer"><input type="checkbox" value="${o}" class="r-pch" checked> ${o.replace('مالک ساکن', 'ساکن')}</label>`).join('')}
+        </div>
         
         <label class="f">بازسازی<input id="r-r" inputmode="numeric"></label>
-        <label class="f">چه کسی می‌دهد؟<select id="r-prp">${PAYER_OPTS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select></label>
+        <div style="grid-column:1/-1; font-size:12px; color:var(--muted); margin-top:-8px; display:flex; align-items:center; gap:8px;">
+          چه کسی می‌دهد؟ ${OCC.map(o => `<label style="display:flex;align-items:center;gap:3px;cursor:pointer"><input type="checkbox" value="${o}" class="r-prp" checked> ${o.replace('مالک ساکن', 'ساکن')}</label>`).join('')}
+        </div>
         
         <label class="f">پارکینگ<input id="r-p" inputmode="numeric"></label>
-        <label class="f">چه کسی می‌دهد؟<select id="r-ppk">${PAYER_OPTS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select></label>
+        <div style="grid-column:1/-1; font-size:12px; color:var(--muted); margin-top:-8px; display:flex; align-items:center; gap:8px;">
+          چه کسی می‌دهد؟ ${OCC.map(o => `<label style="display:flex;align-items:center;gap:3px;cursor:pointer"><input type="checkbox" value="${o}" class="r-ppk" checked> ${o.replace('مالک ساکن', 'ساکن')}</label>`).join('')}
+        </div>
         
-        <label class="f" style="grid-column:1/-1; font-size:12px; color:var(--muted)">توجه: تنظیم پرداخت‌کننده برای آب، گاز و برق به صورت سراسری اعمال می‌شود.</label>
-        <label class="f" style="grid-column:1/-1">آب / گاز / برق<select id="r-pu">${PAYER_OPTS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select></label>
+        <label class="f" style="grid-column:1/-1; font-size:12px; color:var(--muted); margin-top:8px;">توجه: تنظیم پرداخت‌کننده برای آب، گاز و برق به صورت سراسری اعمال می‌شود.</label>
+        <label class="f" style="grid-column:1/-1">آب / گاز / برق</label>
+        <div style="grid-column:1/-1; display:flex; align-items:center; gap:8px;">
+          ${OCC.map(o => `<label style="display:flex;align-items:center;gap:3px;cursor:pointer"><input type="checkbox" value="${o}" class="r-pu" checked> ${o.replace('مالک ساکن', 'ساکن')}</label>`).join('')}
+        </div>
 
         <div style="grid-column:1/-1"><button class="btn sf">ذخیره نرخ</button></div>
       </form>
+      
       <form id="sf" class="card grid g3">
         <h2 style="grid-column:1/-1;margin:0">تنظیمات کلی</h2>
         <label class="f" style="grid-column:1/-1">نام ساختمان<input id="s-n" value="${esc(st.building_name || '')}"></label>
@@ -761,10 +792,12 @@ async function viewRates(el) {
     const [y, mo] = b.dataset.er.split('-').map(Number); const r = rates.find(x => x.year === y && x.month === mo);
     $('#r-y').value = y; $('#r-m').value = mo; 
     $('#r-c').value = fmt(r.charge); $('#r-r').value = fmt(r.repair); $('#r-p').value = fmt(r.parking);
-    $('#r-pch').value = r.payer_charge || 'both';
-    $('#r-prp').value = r.payer_repair || 'both';
-    $('#r-ppk').value = r.payer_parking || 'both';
-    $('#r-pu').value = r.payer_water || 'both';
+    
+    $$('.r-pch').forEach(cb => cb.checked = (r.payer_charge || OCC).includes(cb.value));
+    $$('.r-prp').forEach(cb => cb.checked = (r.payer_repair || OCC).includes(cb.value));
+    $$('.r-ppk').forEach(cb => cb.checked = (r.payer_parking || OCC).includes(cb.value));
+    $$('.r-pu').forEach(cb => cb.checked = (r.payer_water || OCC).includes(cb.value));
+    
     $('#rf').scrollIntoView({ behavior: 'smooth' });
   }));
   
@@ -776,13 +809,18 @@ async function viewRates(el) {
   
   $('#rf').addEventListener('submit', async e => {
     e.preventDefault();
-    const pu = $('#r-pu').value;
+    const getChecked = cls => $$('.'+cls).filter(x => x.checked).map(x => x.value);
+    
     try { 
       await T('app_admin_save_rate', { 
         p_year: +$('#r-y').value, p_month: +$('#r-m').value, 
         p_charge: toNum($('#r-c').value), p_repair: toNum($('#r-r').value), p_parking: toNum($('#r-p').value),
-        p_payer_charge: $('#r-pch').value, p_payer_repair: $('#r-prp').value, p_payer_parking: $('#r-ppk').value,
-        p_payer_water: pu, p_payer_gas: pu, p_payer_electric: pu
+        p_payer_charge: getChecked('r-pch'), 
+        p_payer_repair: getChecked('r-prp'), 
+        p_payer_parking: getChecked('r-ppk'),
+        p_payer_water: getChecked('r-pu'), 
+        p_payer_gas: getChecked('r-pu'), 
+        p_payer_electric: getChecked('r-pu')
       });
       toast('نرخ ذخیره شد'); go('rates'); 
     } catch (err) { toast(err.message, true); }
@@ -795,6 +833,7 @@ async function viewRates(el) {
       toast('تنظیمات ذخیره شد'); renderShell(); } catch (err) { toast(err.message, true); }
   });
 }
+
 // =====================================================================
 //  پروفایل
 // =====================================================================
@@ -822,6 +861,7 @@ async function viewProfile(el) {
     } catch (err) { toast(err.message, true); }
   });
 }
+
 // =====================================================================
 S.token ? renderShell() : renderLogin();
 </script>
