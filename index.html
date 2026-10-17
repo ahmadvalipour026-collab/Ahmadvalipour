@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>مدیریت ساختمان</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
@@ -17,19 +17,20 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:Vazirmat
 button,input,select,textarea{font:inherit;color:inherit}
 a{color:var(--tile-2)}
 .hidden{display:none!important}
-/* ---------- top ---------- */
-header.top{background:var(--tile);color:#fff;position:sticky;top:0;z-index:20;
-  background-image:radial-gradient(circle at 12px 12px,rgba(255,255,255,.07) 2px,transparent 3px);background-size:24px 24px}
-.top-in{max-width:1180px;margin:auto;display:flex;align-items:center;gap:16px;padding:12px 20px;flex-wrap:wrap}
-.brand{font-weight:900;font-size:20px;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
-.brand i{width:12px;height:28px;background:var(--saffron);border-radius:3px;display:inline-block}
-nav.tabs{display:flex;gap:4px;flex-wrap:wrap;flex:1}
-nav.tabs button{background:transparent;border:0;color:#cfe3e8;padding:7px 14px;border-radius:99px;cursor:pointer;font-weight:500}
-nav.tabs button:hover{color:#fff;background:rgba(255,255,255,.08)}
-nav.tabs button.on{background:#fff;color:var(--tile);font-weight:700}
-.who{display:flex;align-items:center;gap:10px;font-size:14px;color:#cfe3e8}
+/* ---------- top modern ---------- */
+header.top{background:rgba(0, 71, 89, 0.96);backdrop-filter:blur(10px);color:#fff;position:sticky;top:0;z-index:20; border-bottom:1px solid rgba(255,255,255,0.1)}
+.top-in{max-width:1180px;margin:auto;display:flex;flex-direction:column;padding:10px 20px 8px;gap:10px}
+.brand-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.brand{font-weight:900;font-size:17px;letter-spacing:-.3px;display:flex;align-items:center;gap:10px; background:rgba(255,255,255,0.12); padding:6px 18px; border-radius:8px; border:1px solid rgba(255,255,255,0.15);}
+.brand i{width:10px;height:18px;background:var(--saffron);border-radius:3px;display:inline-block}
+nav.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px; scrollbar-width:none;}
+nav.tabs::-webkit-scrollbar{display:none;}
+nav.tabs button{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#cfe3e8;padding:6px 16px;border-radius:99px;cursor:pointer;font-weight:500;white-space:nowrap; font-size:13.5px;}
+nav.tabs button:hover{color:#fff;background:rgba(255,255,255,0.15)}
+nav.tabs button.on{background:#fff;color:var(--tile);font-weight:700;border-color:#fff;}
+.who{display:flex;align-items:center;gap:10px;font-size:13px;color:#cfe3e8}
 .who b{color:#fff}
-.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:99px;padding:5px 14px;cursor:pointer}
+.btn-ghost{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:99px;padding:4px 12px;cursor:pointer; font-size:13px;}
 main{max-width:1180px;margin:auto;padding:24px 20px 80px}
 /* ---------- basics ---------- */
 h1{font-size:30px;font-weight:900;margin:0 0 4px;letter-spacing:-.5px}
@@ -81,13 +82,12 @@ tr:hover td{background:#fcfaf8}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.err{background:var(--bad)}
 /* ---------- login ---------- */
-.login{min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr}
-.login .art{background:var(--tile);position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:48px;color:#fff}
-.login .art h1{font-size:56px;line-height:1.15;position:relative;z-index:2}
-.login .art p{color:#cfe3e8;position:relative;z-index:2;margin:8px 0 0}
+.login{min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
+.login .art{background:var(--tile);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:32px;color:#fff}
+.login .art h1{font-size:32px;line-height:1.2;position:relative;z-index:2; font-weight:900;}
 .login .form{display:flex;align-items:center;justify-content:center;padding:32px}
-.login .form .card{width:100%;max-width:400px;padding:32px}
-@media(max-width:820px){.login{grid-template-columns:1fr}.login .art{min-height:300px;padding:28px}.login .art h1{font-size:38px}}
+.login .form .card{width:100%;max-width:380px;padding:28px}
+@media(max-width:820px){.login{grid-template-columns:1fr}.login .art{min-height:180px;padding:20px}.login .art h1{font-size:24px}}
 /* ---------- facade (signature) ---------- */
 .facade{background:linear-gradient(#f3ebe4,#efe5dc);border-radius:var(--r);padding:28px 28px 0;border:1px solid var(--line);position:relative}
 .roof{height:14px;background:var(--brick);border-radius:6px 6px 0 0;margin:0 -10px}
@@ -149,9 +149,9 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { pe
 //  کمکی‌ها
 // =====================================================================
 const MONTHS = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
-// ★ اضافه شد: قبض برق
 const CATS = { charge:'شارژ ماهیانه', water:'قبض آب', gas:'قبض گاز', electric:'قبض برق', repair:'بازسازی', parking:'اجاره پارکینگ', debt:'پرداخت بدهی معوق', other:'سایر', bill:'کل صورتحساب ماه' };
 const OCC = ['مالک ساکن','مالک','مستأجر'];
+const PAYER_OPTS = [['both','هر دو (واحد)'],['مالک ساکن','مالک ساکن'],['مالک','مالک'],['مستأجر','مستأجر']];
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -235,15 +235,13 @@ async function renderLogin() {
           <path d="M40 0 L80 40 L40 80 L0 40Z" fill="none" stroke="#fff" stroke-width="2"/>
           <circle cx="40" cy="40" r="10" fill="none" stroke="#e84a00" stroke-width="3"/></pattern></defs>
         <rect width="400" height="400" fill="url(#tl)"/></svg>
-      <div><h1 id="lg-name">ساختمان</h1><p>صورتحساب، پرداخت و صندوق ۱۰ واحد، یک‌جا.</p></div>
+      <div><h1 id="lg-name">ساختمان</h1></div>
     </div>
     <div class="form"><div class="card">
       <h2>ورود ساکنین</h2>
       <form id="lg" class="grid" style="gap:14px">
-        <label class="f">واحد
-          <select id="lg-acc"><option value="">در حال بارگذاری…</option></select></label>
-        <label class="f">یا نام کاربری
-          <input id="lg-user" autocomplete="username" placeholder="مثلاً negin1" dir="ltr"></label>
+        <label class="f">نام کاربری
+          <input id="lg-user" autocomplete="username" dir="ltr" required></label>
         <label class="f">رمز عبور
           <input id="lg-pass" type="password" autocomplete="current-password" dir="ltr" required></label>
         <button class="btn sf" type="submit">ورود</button>
@@ -255,15 +253,11 @@ async function renderLogin() {
     const info = await api('app_public_info');
     S.building = info.building_name;
     $('#lg-name').textContent = info.building_name;
-    $('#lg-acc').innerHTML = `<option value="">انتخاب واحد…</option>` + info.accounts.map(a =>
-      `<option value="${a.id}">واحد ${fa(a.unit_no)} · ${esc(a.full_name || '')} (${esc(a.occupancy)})${a.is_admin ? ' · مدیر' : ''}</option>`).join('');
-  } catch (e) { $('#lg-err').textContent = 'اتصال به پایگاه داده برقرار نشد. فایل SQL اجرا شده است؟'; }
-  $('#lg-acc').addEventListener('change', () => { if ($('#lg-acc').value) $('#lg-user').value = ''; });
-  $('#lg-user').addEventListener('input', () => { if ($('#lg-user').value) $('#lg-acc').value = ''; });
+  } catch (e) { $('#lg-err').textContent = 'اتصال به پایگاه داده برقرار نشد.'; }
   $('#lg').addEventListener('submit', async e => {
     e.preventDefault();
-    const login = $('#lg-user').value.trim() || $('#lg-acc').value;
-    if (!login) { $('#lg-err').textContent = 'واحد یا نام کاربری را وارد کنید'; return; }
+    const login = $('#lg-user').value.trim();
+    if (!login) { $('#lg-err').textContent = 'نام کاربری را وارد کنید'; return; }
     try {
       const r = await api('app_login', { p_login: login, p_password: $('#lg-pass').value });
       if (!r.ok) { $('#lg-err').textContent = r.error; return; }
@@ -301,10 +295,12 @@ async function renderShell() {
   document.title = S.building + ' | مدیریت ساختمان';
   $('#app').innerHTML = `
   <header class="top"><div class="top-in">
-    <div class="brand"><i></i>${esc(S.building)}</div>
+    <div class="brand-row">
+      <div class="brand"><i></i>${esc(S.building)}</div>
+      <div class="who"><span>واحد ${fa(S.me.unit_no)} · <b>${esc(S.me.full_name || S.me.username)}</b>${S.me.is_admin ? ' (مدیر)' : ''}</span>
+        <button class="btn-ghost" id="lo">خروج</button></div>
+    </div>
     <nav class="tabs">${tabs().map(([k, l]) => `<button data-v="${k}" class="${S.view === k ? 'on' : ''}">${l}</button>`).join('')}</nav>
-    <div class="who"><span>واحد ${fa(S.me.unit_no)} · <b>${esc(S.me.full_name || S.me.username)}</b>${S.me.is_admin ? ' (مدیر)' : ''}</span>
-      <button class="btn-ghost" id="lo">خروج</button></div>
   </div></header>
   <main id="view"></main>`;
   $$('nav.tabs button').forEach(b => b.addEventListener('click', () => go(b.dataset.v)));
@@ -336,6 +332,7 @@ function billCard(r, rep) {
       ${line('شارژ ماهیانه', r.charge, r.ok_charge)}
       ${line('سهم قبض آب', r.water, r.ok_water)}
       ${line('سهم قبض گاز', r.gas, r.exempt_gas ? null : r.ok_gas)}
+      ${line('سهم قبض برق', r.electric, r.exempt_electric ? null : r.ok_electric)}
       ${line('بازسازی', r.repair, r.ok_repair)}
       ${r.parking > 0 ? line('اجاره پارکینگ', r.parking, r.ok_parking) : ''}
     </div>
@@ -395,7 +392,7 @@ async function viewDash(el) {
           <div style="font-size:34px;font-weight:900">${fa(fund.pending_payments)}</div></div>
         <div class="card"><h2>هزینه‌های ${rep.month_name}</h2>
           ${fund.month_expenses.length ? `<table>${fund.month_expenses.map(x => `<tr><td>${esc(x.location || 'سایر')}</td><td style="text-align:left">${money(x.amount)}</td></tr>`).join('')}</table>` : '<p class="muted">هزینه‌ای ثبت نشده</p>'}
-          <p class="muted" style="margin:10px 0 0">قبض آب ساختمان ${fmt(rep.water_total)} · قبض گاز ${fmt(rep.gas_total)}</p></div>
+          <p class="muted" style="margin:10px 0 0">قبض آب ساختمان ${fmt(rep.water_total)} · قبض گاز ${fmt(rep.gas_total)} · قبض برق ${fmt(rep.electric_total)}</p></div>
         <div class="card"><div class="row" style="justify-content:space-between"><span class="muted">موجودی قبلی (افتتاحیه)</span>${money(fund.opening_balance)}</div>
           <div class="row" style="justify-content:space-between"><span class="muted">کل درآمد</span>${money(fund.total_income)}</div>
           <div class="row" style="justify-content:space-between"><span class="muted">کل هزینه</span>${money(fund.total_expense)}</div></div>
@@ -412,7 +409,7 @@ async function viewDash(el) {
 }
 function reminderText(r, rep) {
   return `${S.building} - واحد ${r.unit_no}\nصورتحساب ${rep.month_name} ${rep.year}:\n` +
-    `شارژ ${fmt(r.charge)} | آب ${fmt(r.water)} | گاز ${fmt(r.gas)} | بازسازی ${fmt(r.repair)}` +
+    `شارژ ${fmt(r.charge)} | آب ${fmt(r.water)} | گاز ${fmt(r.gas)} | برق ${fmt(r.electric)} | بازسازی ${fmt(r.repair)}` +
     (r.parking ? ` | پارکینگ ${fmt(r.parking)}` : '') +
     `\nبدهی قبلی: ${fmt(r.prev_debt)}\nمانده قابل پرداخت: ${fmt(r.remaining)} تومان`;
 }
@@ -490,7 +487,7 @@ function approveModal(p) {
       <label class="f">مبلغ تاییدی (تومان)<input id="ap-a" value="${fmt(p.amount)}" inputmode="numeric"></label>
       <label class="f">یادداشت مدیر<input id="ap-n"></label>
     </div>
-    ${p.category === 'bill' ? '<p class="muted">مبلغ به ترتیب بین شارژ، آب، گاز، بازسازی و پارکینگ همان ماه تقسیم می‌شود؛ مازاد به‌عنوان پرداخت بدهی معوق ثبت می‌شود.</p>' : ''}
+    ${p.category === 'bill' ? '<p class="muted">مبلغ به ترتیب بین شارژ، آب، گاز، برق، بازسازی و پارکینگ همان ماه تقسیم می‌شود؛ مازاد به‌عنوان پرداخت بدهی معوق ثبت می‌شود.</p>' : ''}
     <div class="row" style="margin-top:14px"><button class="btn" id="ap-go">تایید و ثبت در جدول تراکنش‌ها</button></div>
     <div id="ap-out"></div>`);
   $('#ap-a', m).addEventListener('input', e => { const n = toNum(e.target.value); e.target.value = n ? fmt(n) : ''; });
@@ -517,22 +514,23 @@ function approveModal(p) {
 // =====================================================================
 async function viewTx(el) {
   const admin = S.me.is_admin;
-  const f = S.txFilter || (S.txFilter = { y: S.y, m: '', unit: '', type: '' });
-  if (f.y === undefined) { f.y = S.y; f.m = ''; f.type = ''; }
+  const f = S.txFilter || (S.txFilter = { y: S.y, m: '', unit: '', type: '', occ: '' });
+  if (f.y === undefined) { f.y = S.y; f.m = ''; f.type = ''; f.occ = ''; }
   const list = await T('app_get_transactions', { p_year: f.y ? +f.y : null, p_month: f.m ? +f.m : null, p_unit: admin && f.unit !== '' && f.unit !== undefined ? +f.unit : null });
-  const rows = list.filter(t => !f.type || t.tx_type === f.type);
+  const rows = list.filter(t => (!f.type || t.tx_type === f.type) && (!f.occ || t.occupancy === f.occ));
   const inc = rows.filter(t => t.tx_type === 'درآمد').reduce((s, t) => s + t.amount, 0);
   const exp = rows.filter(t => t.tx_type === 'هزینه').reduce((s, t) => s + t.amount, 0);
   const units = admin ? await T('app_get_units') : [];
   const phoneOf = u => { const un = units.find(x => x.unit_no === u); const a = un?.accounts.find(a => a.is_primary && a.is_active) || un?.accounts[0]; return a?.phone; };
   el.innerHTML = `
     <div class="spread"><div><h1>تراکنش‌ها</h1><p class="sub" style="margin:0">درآمد ${fmt(inc)} · هزینه ${fmt(exp)} · ${fa(rows.length)} ردیف</p></div>
-      <div class="row">${admin ? '<button class="btn sf" id="tx-new">ثبت درآمد / هزینه</button>' : ''}<button class="btn lt" id="tx-csv">خروجی اکسل (Table2)</button></div></div>
-    <div class="card row no-print" style="margin-bottom:16px;padding:14px">
-      <label class="f" style="width:130px">سال<select id="f-y"><option value="">همه</option>${yearOptions(f.y)}</select></label>
-      <label class="f" style="width:150px">ماه<select id="f-m">${monthOptions(f.m, true)}</select></label>
-      ${admin ? `<label class="f" style="width:150px">واحد<select id="f-u">${unitOptions(f.unit, true, true)}</select></label>` : ''}
-      <label class="f" style="width:130px">نوع<select id="f-t"><option value="">همه</option><option ${f.type === 'درآمد' ? 'selected' : ''}>درآمد</option><option ${f.type === 'هزینه' ? 'selected' : ''}>هزینه</option></select></label>
+      <div class="row">${admin ? '<button class="btn sf" id="tx-new">ثبت درآمد / هزینه</button>' : ''}<button class="btn lt" id="tx-csv">خروجی اکسل</button></div></div>
+    <div class="card row no-print" style="margin-bottom:16px;padding:14px; gap:8px">
+      <label class="f" style="width:100px">سال<select id="f-y"><option value="">همه</option>${yearOptions(f.y)}</select></label>
+      <label class="f" style="width:120px">ماه<select id="f-m">${monthOptions(f.m, true)}</select></label>
+      ${admin ? `<label class="f" style="width:120px">واحد<select id="f-u">${unitOptions(f.unit, true, true)}</select></label>` : ''}
+      <label class="f" style="width:100px">نوع<select id="f-t"><option value="">همه</option><option ${f.type === 'درآمد' ? 'selected' : ''}>درآمد</option><option ${f.type === 'هزینه' ? 'selected' : ''}>هزینه</option></select></label>
+      ${admin ? `<label class="f" style="width:120px">سکونت<select id="f-o"><option value="">همه</option>${OCC.map(o => `<option ${f.occ === o ? 'selected' : ''}>${o}</option>`).join('')}</select></label>` : ''}
     </div>
     <div class="tbl-wrap"><table><thead><tr><th>تاریخ</th><th>Year</th><th>Month</th><th>واحد</th><th>نوع</th><th>محل</th><th>شرح</th><th>مبلغ</th><th>نوع سکونت</th>${admin ? '<th></th>' : ''}</tr></thead>
     <tbody>${rows.map(t => `<tr>
@@ -545,8 +543,8 @@ async function viewTx(el) {
         ${t.unit_no ? smsBtn(phoneOf(t.unit_no), `${S.building} - واحد ${t.unit_no}\n${t.tx_type === 'درآمد' ? 'دریافت' : 'ثبت'} ${fmt(t.amount)} تومان بابت ${t.description} (${t.month_name} ${t.year}) ثبت شد.`) : ''}
         <button class="btn lt sm" data-ed="${t.id}">ویرایش</button><button class="btn rd sm" data-dl="${t.id}">حذف</button></div></td>` : ''}
     </tr>`).join('') || `<tr><td colspan="10" class="muted">تراکنشی نیست</td></tr>`}</tbody></table></div>`;
-  const upd = () => { f.y = $('#f-y').value; f.m = $('#f-m').value; f.unit = $('#f-u')?.value ?? ''; f.type = $('#f-t').value; go('tx'); };
-  ['#f-y', '#f-m', '#f-u', '#f-t'].forEach(s => $(s)?.addEventListener('change', upd));
+  const upd = () => { f.y = $('#f-y').value; f.m = $('#f-m').value; f.unit = $('#f-u')?.value ?? ''; f.type = $('#f-t').value; f.occ = $('#f-o')?.value ?? ''; go('tx'); };
+  ['#f-y', '#f-m', '#f-u', '#f-t', '#f-o'].forEach(s => $(s)?.addEventListener('change', upd));
   $('#tx-csv').addEventListener('click', () => exportCsv(rows));
   if (!admin) return;
   $('#tx-new').addEventListener('click', () => txModal(null, units));
@@ -557,18 +555,19 @@ async function viewTx(el) {
   }));
 }
 function txModal(t, units) {
-  const isNew = !t; t = t || { year: TODAY.y, month: TODAY.m, day: TODAY.d, unit_no: null, tx_type: 'درآمد', category: 'charge', location: '', description: '', amount: '' };
+  const isNew = !t; t = t || { year: TODAY.y, month: TODAY.m, day: TODAY.d, unit_no: null, tx_type: 'درآمد', category: 'charge', location: '', description: '', amount: '', occupancy: '' };
   const m = modal(`<h2>${isNew ? 'ثبت تراکنش جدید' : 'ویرایش تراکنش'}</h2>
     <form id="tf" class="grid g3">
       <label class="f">نوع<select id="t-type"><option ${t.tx_type === 'درآمد' ? 'selected' : ''}>درآمد</option><option ${t.tx_type === 'هزینه' ? 'selected' : ''}>هزینه</option></select></label>
       <label class="f">واحد<select id="t-unit">${unitOptions(t.unit_no ?? 0, true)}</select></label>
       <label class="f">دسته<select id="t-cat">${Object.entries(CATS).filter(([k]) => k !== 'bill').map(([k, v]) => `<option value="${k}" ${t.category === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
+      <label class="f">نوع سکونت<select id="t-occ">${OCC.map(o => `<option ${t.occupancy === o ? 'selected' : ''}>${o}</option>`).join('')}</select></label>
       <label class="f">سال (Year)<select id="t-y">${yearOptions(t.year)}</select></label>
       <label class="f">ماه (Month)<select id="t-m">${monthOptions(t.month)}</select></label>
       <label class="f">روز<input id="t-d" type="number" min="1" max="31" value="${t.day}"></label>
       <label class="f">محل<input id="t-loc" value="${esc(t.location || '')}" placeholder="خودکار از دسته"></label>
       <label class="f">شرح<input id="t-desc" value="${esc(t.description || '')}" placeholder="خودکار از دسته"></label>
-      <label class="f">مبلغ (تومان)<input id="t-amt" inputmode="numeric" required value="${t.amount ? fmt(t.amount) : ''}"></label>
+      <label class="f" style="grid-column:1/-1">مبلغ (تومان)<input id="t-amt" inputmode="numeric" required value="${t.amount ? fmt(t.amount) : ''}"></label>
       <div style="grid-column:1/-1" class="row"><button class="btn sf">${isNew ? 'ثبت' : 'ذخیره'}</button><span id="t-out"></span></div>
     </form>`);
   $('#t-amt', m).addEventListener('input', e => { const n = toNum(e.target.value); e.target.value = n ? fmt(n) : ''; });
@@ -577,7 +576,7 @@ function txModal(t, units) {
     try {
       const r = await T('app_admin_save_transaction', { p_id: isNew ? null : t.id, p_year: +$('#t-y', m).value, p_month: +$('#t-m', m).value, p_day: +$('#t-d', m).value || 1,
         p_unit_no: unit || null, p_tx_type: $('#t-type', m).value, p_category: $('#t-cat', m).value, p_location: $('#t-loc', m).value, p_description: $('#t-desc', m).value,
-        p_amount: toNum($('#t-amt', m).value), p_force: force });
+        p_amount: toNum($('#t-amt', m).value), p_occupancy: $('#t-occ', m).value, p_force: force });
       if (!r.ok && r.duplicate) {
         $('#t-out', m).innerHTML = `<span class="neg">${esc(r.error)}</span> <button type="button" class="btn sm lt" id="t-f">ثبت اجباری</button>`;
         $('#t-f', m).addEventListener('click', () => run(true)); return;
@@ -595,12 +594,15 @@ function txModal(t, units) {
   $('#tf', m).addEventListener('submit', e => { e.preventDefault(); run(false); });
 }
 function exportCsv(rows) {
-  const head = ['data', 'Year', 'Month', 'ماه', 'واحد', 'نوع', 'محل', 'شرح', 'مبلغ', 'نوع سکونت'];
+  // استفاده از سمی‌کالن برای سازگاری با اکسل فارسی
+  const sep = ';';
+  const head = ['تاریخ', 'سال', 'ماه', 'واحد', 'نوع', 'محل', 'شرح', 'مبلغ', 'نوع سکونت'];
   const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
-  const lines = [head.map(q).join(',')].concat(rows.slice().reverse().map(t =>
-    [t.tx_date, t.year, t.month, t.month_name, t.unit_no ? 'واحد ' + t.unit_no : 'ساختمان', t.tx_type, t.location, t.description, t.amount, t.occupancy].map(q).join(',')));
+  const lines = [head.map(q).join(sep)].concat(rows.slice().reverse().map(t =>
+    [t.tx_date, t.year, t.month_name, t.unit_no ? 'واحد ' + t.unit_no : 'ساختمان', t.tx_type, t.location, t.description, t.amount, t.occupancy].map(q).join(sep)));
+  // اضافه کردن BOM برای اکسل
   const blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Table2.csv'; a.click();
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Transactions.csv'; a.click();
 }
 // =====================================================================
 //  گزارش ماهانه
@@ -612,21 +614,21 @@ async function viewReport(el) {
   const sum = k => rep.rows.reduce((s, r) => s + (r[k] || 0), 0);
   el.innerHTML = `
     <div class="spread"><div><h1>گزارش ${rep.month_name} ${fa(rep.year)}</h1>
-      <p class="sub" style="margin:0">شارژ ${fmt(rep.rate?.charge)} · بازسازی ${fmt(rep.rate?.repair)} · پارکینگ ${fmt(rep.rate?.parking)} · قبض آب ${fmt(rep.water_total)} · قبض گاز ${fmt(rep.gas_total)}</p></div>
+      <p class="sub" style="margin:0">شارژ ${fmt(rep.rate?.charge)} · بازسازی ${fmt(rep.rate?.repair)} · پارکینگ ${fmt(rep.rate?.parking)} · قبض آب ${fmt(rep.water_total)} · قبض گاز ${fmt(rep.gas_total)} · قبض برق ${fmt(rep.electric_total)}</p></div>
       <div class="row">${periodPicker()}<button class="btn lt no-print" onclick="window.print()">چاپ / PDF</button></div></div>
     ${rep.missing_rates?.length ? `<div class="banner no-print">نرخ ماه‌های ${rep.missing_rates.map(fa).join('، ')} تعریف نشده و صفر حساب شده.</div>` : ''}
     <div class="tbl-wrap"><table><thead><tr>
-      <th>واحد</th><th>نفرات</th><th>شارژ</th><th>قبض آب</th><th>قبض گاز</th><th>بازسازی</th><th>پارکینگ</th>
+      <th>واحد</th><th>نفرات</th><th>شارژ</th><th>قبض آب</th><th>قبض گاز</th><th>قبض برق</th><th>بازسازی</th><th>پارکینگ</th>
       <th>بدهی قبلی</th><th>جمع قابل پرداخت</th><th>پرداختی ماه</th><th>مانده</th>${S.me.is_admin ? '<th class="no-print"></th>' : ''}</tr></thead><tbody>
     ${rep.rows.map(r => `<tr>
       <td><b>واحد ${fa(r.unit_no)}</b><br><span class="muted">${esc(r.full_name || '')}</span></td><td>${fa(r.persons)}</td>
-      ${cell(r.charge, r.ok_charge)}${cell(r.water, r.ok_water)}${cell(r.gas, r.ok_gas, r.exempt_gas)}${cell(r.repair, r.ok_repair)}
+      ${cell(r.charge, r.ok_charge)}${cell(r.water, r.ok_water)}${cell(r.gas, r.ok_gas, r.exempt_gas)}${cell(r.electric, r.ok_electric, r.exempt_electric)}${cell(r.repair, r.ok_repair)}
       ${r.parking ? cell(r.parking, r.ok_parking) : '<td class="muted">—</td>'}
       <td>${money(r.prev_debt)}</td><td><b>${money(r.total_payable)}</b></td><td>${money(r.paid_this_month)}</td>
       <td><b>${money(r.remaining)}</b></td>
       ${S.me.is_admin ? `<td class="no-print">${r.remaining > 0 ? smsBtn(r.phone, reminderText(r, rep), 'یادآوری') : ''}</td>` : ''}
     </tr>`).join('')}
-    ${S.me.is_admin ? `<tr style="background:#f6f1ec;font-weight:700"><td>جمع</td><td>${fa(sum('persons'))}</td><td>${money(sum('charge'))}</td><td>${money(sum('water'))}</td><td>${money(sum('gas'))}</td><td>${money(sum('repair'))}</td><td>${money(sum('parking'))}</td><td>${money(sum('prev_debt'))}</td><td>${money(sum('total_payable'))}</td><td>${money(sum('paid_this_month'))}</td><td>${money(sum('remaining'))}</td><td class="no-print"></td></tr>` : ''}
+    ${S.me.is_admin ? `<tr style="background:#f6f1ec;font-weight:700"><td>جمع</td><td>${fa(sum('persons'))}</td><td>${money(sum('charge'))}</td><td>${money(sum('water'))}</td><td>${money(sum('gas'))}</td><td>${money(sum('electric'))}</td><td>${money(sum('repair'))}</td><td>${money(sum('parking'))}</td><td>${money(sum('prev_debt'))}</td><td>${money(sum('total_payable'))}</td><td>${money(sum('paid_this_month'))}</td><td>${money(sum('remaining'))}</td><td class="no-print"></td></tr>` : ''}
     </tbody></table></div>`;
   bindPeriod(() => go('report'));
 }
@@ -705,42 +707,87 @@ function unitModal(u) {
 // =====================================================================
 async function viewRates(el) {
   const [rates, st] = await Promise.all([T('app_get_rates'), T('app_get_settings')]);
-  el.innerHTML = `<h1>نرخ‌های ماهانه</h1><p class="sub">معادل Table3: مبلغ شارژ، بازسازی و اجاره پارکینگ هر ماه.</p>
+  
+  const payerSelect = (id, val) => `<select id="${id}" style="font-size:12px; padding:4px; min-height:30px;">${PAYER_OPTS.map(([v,l]) => `<option value="${v}" ${val === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`;
+  
+  el.innerHTML = `<h1>نرخ‌ها و تنظیمات</h1><p class="sub">مبلغ شارژ، بازسازی، پارکینگ و تعیین اینکه چه کسی باید این هزینه‌ها را پرداخت کند.</p>
   <div class="grid g2">
-    <div class="tbl-wrap"><table><thead><tr><th>Year</th><th>Month</th><th>شارژ</th><th>بازسازی</th><th>پارکینگ</th><th></th></tr></thead><tbody>
-      ${rates.map(r => `<tr><td>${fa(r.year)}</td><td>${MONTHS[r.month - 1]}</td><td>${money(r.charge)}</td><td>${money(r.repair)}</td><td>${money(r.parking)}</td>
-        <td><div class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn lt sm" data-er="${r.year}-${r.month}">ویرایش</button><button class="btn rd sm" data-dr="${r.year}-${r.month}">حذف</button></div></td></tr>`).join('')}
+    <div class="tbl-wrap">
+      <table style="min-width:600px;"><thead><tr><th>ماه</th><th>شارژ</th><th>بازسازی</th><th>پارکینگ</th><th></th></tr></thead><tbody>
+      ${rates.map(r => `<tr>
+        <td>${MONTHS[r.month - 1]} ${fa(r.year)}</td>
+        <td><div class="num">${fmt(r.charge)}</div>${payerSelect('ex_ch_'+r.ym, r.payer_charge || 'both')}</td>
+        <td><div class="num">${fmt(r.repair)}</div>${payerSelect('ex_rp_'+r.ym, r.payer_repair || 'both')}</td>
+        <td><div class="num">${fmt(r.parking)}</div>${payerSelect('ex_pk_'+r.ym, r.payer_parking || 'both')}</td>
+        <td><div class="row" style="gap:6px;flex-wrap:nowrap">
+          <button class="btn lt sm" data-er="${r.year}-${r.month}">ویرایش</button>
+          <button class="btn rd sm" data-dr="${r.year}-${r.month}">حذف</button>
+        </div></td>
+      </tr>`).join('')}
     </tbody></table></div>
+    
     <div class="grid" style="align-content:start">
-      <form id="rf" class="card grid g3"><h2 style="grid-column:1/-1;margin:0">افزودن / ویرایش نرخ</h2>
+      <form id="rf" class="card grid g3">
+        <h2 style="grid-column:1/-1;margin:0">افزودن / ویرایش نرخ</h2>
         <label class="f">سال<select id="r-y">${yearOptions(TODAY.y)}</select></label>
         <label class="f">ماه<select id="r-m">${monthOptions(TODAY.m)}</select></label>
         <label class="f">شارژ<input id="r-c" inputmode="numeric"></label>
+        <label class="f">چه کسی می‌دهد؟<select id="r-pch">${PAYER_OPTS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select></label>
+        
         <label class="f">بازسازی<input id="r-r" inputmode="numeric"></label>
+        <label class="f">چه کسی می‌دهد؟<select id="r-prp">${PAYER_OPTS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select></label>
+        
         <label class="f">پارکینگ<input id="r-p" inputmode="numeric"></label>
-        <div style="align-self:end"><button class="btn sf">ذخیره</button></div></form>
-      <form id="sf" class="card grid g3"><h2 style="grid-column:1/-1;margin:0">تنظیمات</h2>
+        <label class="f">چه کسی می‌دهد؟<select id="r-ppk">${PAYER_OPTS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select></label>
+        
+        <label class="f" style="grid-column:1/-1; font-size:12px; color:var(--muted)">توجه: تنظیم پرداخت‌کننده برای آب، گاز و برق به صورت سراسری اعمال می‌شود.</label>
+        <label class="f" style="grid-column:1/-1">آب / گاز / برق<select id="r-pu">${PAYER_OPTS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select></label>
+
+        <div style="grid-column:1/-1"><button class="btn sf">ذخیره نرخ</button></div>
+      </form>
+      <form id="sf" class="card grid g3">
+        <h2 style="grid-column:1/-1;margin:0">تنظیمات کلی</h2>
         <label class="f" style="grid-column:1/-1">نام ساختمان<input id="s-n" value="${esc(st.building_name || '')}"></label>
-        <label class="f">موجودی قبلی صندوق<input id="s-o" inputmode="numeric" value="${fmt(st.opening_balance)}"></label>
-        <label class="f">شروع محاسبه بدهی<input id="s-s" dir="ltr" value="${String(st.start_ym).slice(0, 4)}/${String(st.start_ym).slice(4)}"></label>
-        <div style="align-self:end"><button class="btn">ذخیره</button></div></form>
-    </div></div>`;
+        <label class="f">موجودی اولیه صندوق<input id="s-o" inputmode="numeric" value="${fmt(st.opening_balance)}"></label>
+        <label class="f">شروع محاسبه<input id="s-s" dir="ltr" value="${String(st.start_ym).slice(0, 4)}/${String(st.start_ym).slice(4)}"></label>
+        <div style="align-self:end"><button class="btn">ذخیره تنظیمات</button></div>
+      </form>
+    </div>
+  </div>`;
+
   $$('#r-c,#r-r,#r-p,#s-o').forEach(i => i.addEventListener('input', e => { const n = toNum(e.target.value); e.target.value = n ? fmt(n) : ''; }));
+  
   $$('[data-er]').forEach(b => b.addEventListener('click', () => {
     const [y, mo] = b.dataset.er.split('-').map(Number); const r = rates.find(x => x.year === y && x.month === mo);
-    $('#r-y').value = y; $('#r-m').value = mo; $('#r-c').value = fmt(r.charge); $('#r-r').value = fmt(r.repair); $('#r-p').value = fmt(r.parking);
+    $('#r-y').value = y; $('#r-m').value = mo; 
+    $('#r-c').value = fmt(r.charge); $('#r-r').value = fmt(r.repair); $('#r-p').value = fmt(r.parking);
+    $('#r-pch').value = r.payer_charge || 'both';
+    $('#r-prp').value = r.payer_repair || 'both';
+    $('#r-ppk').value = r.payer_parking || 'both';
+    $('#r-pu').value = r.payer_water || 'both';
     $('#rf').scrollIntoView({ behavior: 'smooth' });
   }));
+  
   $$('[data-dr]').forEach(b => b.addEventListener('click', async () => {
     if (!confirm('این نرخ حذف شود؟')) return;
     const [y, mo] = b.dataset.dr.split('-').map(Number);
     try { await T('app_admin_delete_rate', { p_year: y, p_month: mo }); go('rates'); } catch (e) { toast(e.message, true); }
   }));
+  
   $('#rf').addEventListener('submit', async e => {
     e.preventDefault();
-    try { await T('app_admin_save_rate', { p_year: +$('#r-y').value, p_month: +$('#r-m').value, p_charge: toNum($('#r-c').value), p_repair: toNum($('#r-r').value), p_parking: toNum($('#r-p').value) });
-      toast('نرخ ذخیره شد'); go('rates'); } catch (err) { toast(err.message, true); }
+    const pu = $('#r-pu').value;
+    try { 
+      await T('app_admin_save_rate', { 
+        p_year: +$('#r-y').value, p_month: +$('#r-m').value, 
+        p_charge: toNum($('#r-c').value), p_repair: toNum($('#r-r').value), p_parking: toNum($('#r-p').value),
+        p_payer_charge: $('#r-pch').value, p_payer_repair: $('#r-prp').value, p_payer_parking: $('#r-ppk').value,
+        p_payer_water: pu, p_payer_gas: pu, p_payer_electric: pu
+      });
+      toast('نرخ ذخیره شد'); go('rates'); 
+    } catch (err) { toast(err.message, true); }
   });
+  
   $('#sf').addEventListener('submit', async e => {
     e.preventDefault();
     const s = toNum($('#s-s').value.replace('/', ''));
