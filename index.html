@@ -646,8 +646,12 @@ async function viewUnits(el) {
   $$('[data-u]').forEach(b => b.addEventListener('click', () => unitModal(units.find(u => u.unit_no == b.dataset.u))));
 }
 function accForm(a, unitNo) {
-  a = a || { id: '', username: '', full_name: '', phone: '', email: '', occupancy: 'مالک ساکن', is_primary: true, is_active: true };
+  a = a || { id: '', username: '', full_name: '', phone: '', email: '', occupancy: 'مالک ساکن', is_primary: true, is_active: true, start_ym: TODAY.y * 100 + TODAY.m };
   const id = a.id || '';
+  const start_ym = a.start_ym || (TODAY.y * 100 + TODAY.m);
+  const start_year = Math.floor(start_ym / 100);
+  const start_month = start_ym % 100;
+  
   return `<form class="acc grid g3" data-id="${id}" style="background:#f9f9f9; padding:12px; border-radius:8px; margin-bottom:10px;">
     <label class="f">نام و نام خانوادگی<input name="full_name" value="${esc(a.full_name || '')}"></label>
     <label class="f">موبایل<input name="phone" dir="ltr" value="${esc(a.phone || '')}"></label>
@@ -655,6 +659,10 @@ function accForm(a, unitNo) {
     <label class="f">سکونت<select name="occupancy">${OCC.map(o => `<option ${a.occupancy === o ? 'selected' : ''}>${o}</option>`).join('')}</select></label>
     <label class="f">نام کاربری<input name="username" dir="ltr" value="${esc(a.username || '')}" required></label>
     <label class="f">${id ? 'رمز جدید' : 'رمز (پیش‌فرض 1234)'}<input name="pass" dir="ltr" type="text"></label>
+    
+    <label class="f">شروع محاسبه (سال)<select name="start_y">${yearOptions(start_year)}</select></label>
+    <label class="f">شروع محاسبه (ماه)<select name="start_m">${monthOptions(start_month)}</select></label>
+    
     <div class="checks" style="grid-column:1/-1; align-items:center;">
       <label><input type="checkbox" name="is_primary" ${a.is_primary ? 'checked' : ''}>مخاطب اصلی</label>
       <label><input type="checkbox" name="is_active" ${a.is_active ? 'checked' : ''}>فعال</label>
@@ -694,6 +702,7 @@ function unitModal(u) {
       e.preventDefault();
       const v = n => f.elements[n].value;
       const pId = (f.dataset.id && f.dataset.id !== 'undefined') ? f.dataset.id : null;
+      const start_ym = +(v('start_y') + v('start_m').padStart(2, '0'));
       
       try {
         const a = await T('app_admin_save_account', { 
@@ -706,7 +715,8 @@ function unitModal(u) {
           p_occupancy: v('occupancy'), 
           p_is_primary: f.elements.is_primary.checked,
           p_is_active: f.elements.is_active.checked, 
-          p_new_password: v('pass') || null 
+          p_new_password: v('pass') || null,
+          p_start_ym: start_ym
         });
         f.dataset.id = a.id; 
         f.elements.pass.value = ''; 
